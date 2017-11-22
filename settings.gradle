@@ -1,0 +1,3 @@
+rootProject.name = 'blog-client-sample'
+rootProject.buildFileName = 'build.gradle.kts'
+
