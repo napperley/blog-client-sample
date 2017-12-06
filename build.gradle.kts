@@ -19,6 +19,7 @@ buildscript {
 
 apply {
     plugin("kotlin2js")
+    plugin("kotlin-dce-js")
 }
 
 val kotlinVer: String by extra
@@ -41,8 +42,11 @@ dependencies {
 val compileKotlin2Js by tasks.getting(Kotlin2JsCompile::class) {
     val fileName = "blog-client.js"
 
-    kotlinOptions.outputFile = "${projectDir.absolutePath}/web/js/$fileName"
-    kotlinOptions.sourceMap = true
+    kotlinOptions {
+        outputFile = "${projectDir.absolutePath}/web/js/$fileName"
+        sourceMap = true
+        moduleKind = "umd"
+    }
     doFirst { File("${projectDir.absolutePath}/web/js").deleteRecursively() }
 }
 val build by tasks
@@ -63,7 +67,7 @@ val assembleWeb by tasks.creating(Copy::class) {
 }
 
 task<Copy>("deployClient") {
-    dependsOn(compileKotlin2Js, assembleWeb)
+    dependsOn("runDceKotlinJs", assembleWeb)
     from("${projectDir.absolutePath}/src/main/resources")
     into("${projectDir.absolutePath}/web")
 }

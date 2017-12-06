@@ -7,7 +7,7 @@ import org.webscene.client.html.bootstrap.Bootstrap
 import org.webscene.client.html.bootstrap.ButtonSize
 import org.webscene.client.html.HtmlCreator as html
 
-internal fun createAuthPageBody() = html.parentElement("div") {
+internal fun createAuthPageBody(signup: Boolean = false) = html.parentElement("div") {
     classes += "auth-page"
     children += Bootstrap.container {
         classes += "page"
@@ -15,16 +15,16 @@ internal fun createAuthPageBody() = html.parentElement("div") {
             // Column.
             parentHtmlElement("div") {
                 classes.addAll(arrayOf("col-md-6", "offset-md-3", "col-xs-12"))
-                children.addAll(createColumnItems())
+                children.addAll(createColumnItems(signup))
             }
         }
     }
 }
 
-private fun createColumnItems() = arrayOf(
+private fun createColumnItems(signup: Boolean) = arrayOf(
     html.parentElement("h1") {
         classes += "text-xs-center"
-        +"Sign up"
+        if (signup) +"Signup" else +"Login"
     },
     html.parentElement("p") {
         classes += "text-xs-center"
@@ -35,12 +35,17 @@ private fun createColumnItems() = arrayOf(
     },
     html.parentElement("ul") {
         classes += "error-messages"
-        parentHtmlElement("li") { +"That email is already taken" }
+        parentHtmlElement("li") {
+            attributes["hidden"] = "true"
+            +"That email is already taken"
+        }
     },
-    createForm()
+    createForm(signup)
 )
 
-private fun createFieldSets(): Array<ParentHtmlTag> {
+private fun createFieldSets(signup: Boolean): Array<ParentHtmlTag> {
+    val namePos = 0
+    val emailPos = 1
     val placeholders = arrayOf("Your Name", "Email", "Password")
     val tmpFieldSets = mutableListOf<ParentHtmlTag>()
 
@@ -50,16 +55,19 @@ private fun createFieldSets(): Array<ParentHtmlTag> {
             children += html.input(type = InputType.TEXT) {
                 classes.addAll(arrayOf("form-control", "form-control-lg"))
                 attributes["placeholder"] = p
+                if (attributes["placeholder"] == placeholders[emailPos]) id = "email-txt"
+                if (!signup && attributes["placeholder"] == placeholders[namePos]) attributes["hidden"] = "true"
             }
         }
     }
     return tmpFieldSets.toTypedArray()
 }
 
-private fun createForm() = html.form(action = "", method = HttpMethod.GET) {
-    children.addAll(createFieldSets())
+private fun createForm(signup: Boolean) = html.form(action = "?auth=true", method = HttpMethod.POST) {
+    children.addAll(createFieldSets(signup))
     parentHtmlElement("button") {
+        id = "action-btn"
         classes.addAll(arrayOf("btn", ButtonSize.LARGE.txt, "btn-primary", "pull-xs-right"))
-        +"Sign up"
+        if (signup) +"Signup" else +"Login"
     }
 }

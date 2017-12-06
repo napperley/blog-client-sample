@@ -71,6 +71,7 @@ gradle-app.setting
 .idea/
 web/
 libs/
+src/main/kotlin/org/example/blogclient/Settings.kt
 
 # Files/directories to unignore.
 !gradle/
